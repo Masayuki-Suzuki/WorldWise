@@ -1,11 +1,13 @@
-// type LoginPropsType = {}
-
 import DefaultLayout from '../layouts/DefaultLayout'
+import LoginForm from '../organisms/Login/LoginForm'
+import styles from './Login.module.sass'
 
 const Login = () => {
     return (
         <DefaultLayout>
-            <div></div>
+            <main className={styles.login}>
+                <LoginForm />
+            </main>
         </DefaultLayout>
     )
 }
