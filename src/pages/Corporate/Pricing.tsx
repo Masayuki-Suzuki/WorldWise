@@ -1,6 +1,6 @@
-import DefaultLayout from '../layouts/DefaultLayout'
+import DefaultLayout from '../../layouts/DefaultLayout'
 import styles from './Pricing.module.sass'
-import PricingMainSection from '../organisms/Pricing/PricingMainSection'
+import PricingMainSection from '../../organisms/Pricing/PricingMainSection'
 
 const Pricing = () => {
     return (

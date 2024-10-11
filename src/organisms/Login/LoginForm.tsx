@@ -1,11 +1,22 @@
+import { SyntheticEvent, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import FormInput from '../../molecues/Forms/FormInput'
-import { useState } from 'react'
 import styles from './LoginForm.module.sass'
 import Button from '../../atoms/Button'
 
 const LoginForm = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const navigate = useNavigate()
+
+    const handleButtonClick = (e: SyntheticEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        if (email && password) {
+            navigate('/app/cities')
+        }
+    }
 
     return (
         <form className={styles.loginForm}>
@@ -30,7 +41,7 @@ const LoginForm = () => {
                 required
             />
             <div>
-                <Button action={() => console.log('Login clicked')}>Login</Button>
+                <Button action={handleButtonClick}>Login</Button>
             </div>
         </form>
     )

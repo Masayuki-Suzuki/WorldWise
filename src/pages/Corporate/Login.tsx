@@ -1,5 +1,5 @@
-import DefaultLayout from '../layouts/DefaultLayout'
-import LoginForm from '../organisms/Login/LoginForm'
+import DefaultLayout from '../../layouts/DefaultLayout'
+import LoginForm from '../../organisms/Login/LoginForm'
 import styles from './Login.module.sass'
 
 const Login = () => {

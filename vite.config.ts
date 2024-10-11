@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
             open: true
         },
         define: {
-            'process.env.API_URL': JSON.stringify(env.API_URI) // Replace with your API URL
+            'process.env.API_URL': JSON.stringify(env.API_URL) // Replace with your API URL
         },
         css: {
             preprocessorOptions: {
