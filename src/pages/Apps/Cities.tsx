@@ -1,16 +1,12 @@
-import { City } from '../../types/apps'
 import CityItem from '../../molecues/Apps/CityItem'
 import Spinner from '../../atoms/Spinner'
 
 import styles from './Cities.module.sass'
 import Message from '../../molecues/Apps/Message'
+import { useCities } from '../../contexts/CitiesContext'
 
-type CitiesProps = {
-    cities: City[]
-    isLoading: boolean
-}
-
-const Cities = ({ cities, isLoading }: CitiesProps) => {
+const Cities = () => {
+    const { cities, isLoading } = useCities()
     return (
         <div>
             {isLoading && <Spinner />}

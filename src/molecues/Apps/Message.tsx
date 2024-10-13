@@ -2,12 +2,13 @@ import styles from './Message.module.sass'
 
 type MessageProps = {
     message: string
+    type?: 'error' | 'info'
 }
 
-function Message({ message }: MessageProps) {
+function Message({ message, type = 'info' }: MessageProps) {
     return (
         <p className={styles.message}>
-            <span role="img">👋</span> {message}
+            <span role="img">{type === 'info' ? '👋' : '⛔️'} </span> {message}
         </p>
     )
 }

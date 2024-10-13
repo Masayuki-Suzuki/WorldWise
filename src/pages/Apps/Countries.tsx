@@ -5,13 +5,11 @@ import CountryItem from '../../molecues/Apps/CountryItem'
 import { City, Country } from '../../types/apps'
 
 import styles from './Countries.module.sass'
+import { useCities } from '../../contexts/CitiesContext'
 
-type CountriesProps = {
-    cities: City[]
-    isLoading: boolean
-}
+const Countries = () => {
+    const { cities, isLoading } = useCities()
 
-const Countries = ({ cities, isLoading }: CountriesProps) => {
     const countries: Country[] = cities.reduce((acc: Country[], city: City) => {
         if (!acc.some(country => country.countryName === city.country)) {
             return [...acc, { emoji: city.emoji, countryName: city.country }]

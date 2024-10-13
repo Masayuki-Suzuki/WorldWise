@@ -4,7 +4,7 @@ import styles from './Button.module.sass'
 type ButtonPropsType = {
     action: VoidFunction | OnClickEventWithEvent<HTMLButtonElement>
     children: ReactElementAllowString
-    type: string
+    type: 'primary' | 'back'
 }
 
 const Button = ({ action, children, type }: ButtonPropsType) => (

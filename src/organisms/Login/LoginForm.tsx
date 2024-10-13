@@ -41,7 +41,9 @@ const LoginForm = () => {
                 required
             />
             <div>
-                <Button action={handleButtonClick}>Login</Button>
+                <Button action={handleButtonClick} type="primary">
+                    Login
+                </Button>
             </div>
         </form>
     )
