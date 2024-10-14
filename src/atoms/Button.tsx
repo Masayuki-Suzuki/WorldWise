@@ -4,10 +4,10 @@ import styles from './Button.module.sass'
 type ButtonPropsType = {
     action: VoidFunction | OnClickEventWithEvent<HTMLButtonElement>
     children: ReactElementAllowString
-    type: 'primary' | 'back'
+    type?: 'primary' | 'back'
 }
 
-const Button = ({ action, children, type }: ButtonPropsType) => (
+const Button = ({ action, children, type = 'primary' }: ButtonPropsType) => (
     <button className={`${styles.btn} ${styles[type]}`} onClick={action}>
         {children}
     </button>

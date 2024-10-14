@@ -39,7 +39,7 @@ const CitiesProvider = ({ children }: OnlyChildren) => {
                 console.error('Error:', error)
             }
         } finally {
-            await sleep(2000)
+            await sleep(1000)
             setIsLoading(false)
         }
     }
@@ -61,7 +61,7 @@ const CitiesProvider = ({ children }: OnlyChildren) => {
             }
             return null
         } finally {
-            await sleep(2000)
+            await sleep(1000)
             setIsLoading(false)
         }
     }

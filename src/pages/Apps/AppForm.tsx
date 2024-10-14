@@ -2,6 +2,8 @@ import { useState } from 'react'
 import styles from './AppForm.module.sass'
 import { DateString } from '../../types/utilities'
 import { format } from 'date-fns'
+import BackButton from '../../atoms/BackButton'
+import Button from '../../atoms/Button'
 
 const AppForm = () => {
     const [cityName, setCityName] = useState('')
@@ -28,8 +30,8 @@ const AppForm = () => {
             </div>
 
             <div className={styles.buttons}>
-                <button>Add</button>
-                <button>&larr; Back</button>
+                <Button action={() => console.log('add')}>Add</Button>
+                <BackButton />
             </div>
         </form>
     )
