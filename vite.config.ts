@@ -16,7 +16,8 @@ export default defineConfig(({ mode }) => {
             open: true
         },
         define: {
-            'process.env.API_URL': JSON.stringify(env.API_URL) // Replace with your API URL
+            'process.env.API_URL': JSON.stringify(env.API_URL), // Replace with your API URL
+            'process.env.GEO_API': JSON.stringify(env.GEO_API) // Replace with your Geocoding API URL
         },
         css: {
             preprocessorOptions: {

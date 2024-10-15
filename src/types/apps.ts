@@ -6,7 +6,7 @@ export type Position = {
 }
 
 export type City = {
-    id: number
+    id: string
     cityName: string
     country: string
     emoji: string
@@ -18,4 +18,35 @@ export type City = {
 export type Country = {
     emoji: string
     countryName: string
+}
+
+export type Administrative = {
+    [key: string]: string | number
+}
+
+export type Informative = {
+    [key: string]: string | number
+}
+
+export type LocalityInfo = {
+    administrative: Administrative[]
+    informative: Informative[]
+}
+
+export type DecodedLocationData = {
+    city: string
+    continent: string
+    continentCode: string
+    countryCode: string
+    countryName: string
+    latitude: number
+    locality: string
+    localityInfo: LocalityInfo
+    localityLanguageRequested: string
+    longitude: number
+    lookupSource: string
+    plusCode: string
+    postalcode: string
+    principalSubdivision: string
+    principalSubdivisionCode: string
 }

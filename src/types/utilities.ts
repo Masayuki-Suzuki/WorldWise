@@ -5,8 +5,9 @@ export type Nullable<T> = T | null
 export type NullableString = Nullable<string>
 export type NullableNumber = Nullable<number>
 export type VoidFunction = () => void
-export type PromiseVoidFunction = () => Promise<void>
-export type DateString = string | Date
+export type VoidPromise = Promise<void>
+export type PromiseVoidFunction = () => VoidPromise
+export type DateString = string | Date | null | undefined
 
 // React Element
 export type ReactElement = JSX.Element | JSX.Element[]

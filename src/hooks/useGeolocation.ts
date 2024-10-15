@@ -2,12 +2,9 @@ import { useState } from 'react'
 import { Nullable } from '../types/utilities'
 import { Position } from '../types/apps'
 
-const useGeolocation = () => {
+const useGeolocation = (defaultPosition: Nullable<Position> = null) => {
     const [isLoading, setIsLoading] = useState(false)
-    const [position, setPosition] = useState<Position>({
-        lat: 0,
-        lng: 0
-    })
+    const [position, setPosition] = useState<Nullable<Position>>(defaultPosition)
     const [error, setError] = useState<Nullable<string>>(null)
 
     const getPosition = () => {
@@ -16,6 +13,7 @@ const useGeolocation = () => {
         setIsLoading(true)
         navigator.geolocation.getCurrentPosition(
             pos => {
+                console.log('Successful geolocation')
                 setPosition({
                     lat: pos.coords.latitude,
                     lng: pos.coords.longitude
@@ -23,11 +21,9 @@ const useGeolocation = () => {
                 setIsLoading(false)
             },
             error => {
-                if (error instanceof Error) {
-                    setError(error.message)
-                } else {
-                    setError('An unknown error occurred')
-                }
+                console.error('Error getting geolocation:', error.message)
+                setError(error.message)
+
                 setIsLoading(false)
             }
         )
@@ -36,4 +32,4 @@ const useGeolocation = () => {
     return { isLoading, position, error, getPosition }
 }
 
-export default useGeolocation
+export { useGeolocation }

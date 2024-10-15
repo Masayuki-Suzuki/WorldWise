@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet'
 
 import styles from './Map.module.sass'
 import { LatLngExpression } from 'leaflet'
 import { useCities } from '../../contexts/CitiesContext'
+import { useGeolocation } from '../../hooks/useGeolocation'
+import Button from '../../atoms/Button'
+import useURLPosition from '../../hooks/useURLPosition'
 
 type ChangeCenterProps = {
     position: LatLngExpression
@@ -21,8 +24,7 @@ const DetectClick = () => {
 
     useMapEvents({
         click: e => {
-            console.log(e)
-            // navigate(`form?lat=${e.latlng.lat}&lng=${e.latlng.lng}`)
+            navigate(`form?lat=${e.latlng.lat}&lng=${e.latlng.lng}`)
         }
     })
 
@@ -31,11 +33,9 @@ const DetectClick = () => {
 
 const Map = () => {
     const { cities } = useCities()
-    const [searchParams] = useSearchParams()
     const [mapPosition, setMapPosition] = useState<LatLngExpression>([40, 0])
-
-    const lat = searchParams.get('lat')
-    const lng = searchParams.get('lng')
+    const { isLoading: isLoadingPosition, position: geolocationPosition, getPosition } = useGeolocation()
+    const [lat, lng] = useURLPosition()
 
     useEffect(() => {
         const coordinates: LatLngExpression = [Number(lat), Number(lng)]
@@ -44,8 +44,19 @@ const Map = () => {
         }
     }, [lat, lng])
 
+    useEffect(() => {
+        if (geolocationPosition) {
+            setMapPosition([geolocationPosition.lat, geolocationPosition.lng])
+        }
+    }, [geolocationPosition])
+
     return (
         <div className={styles.mapContainer}>
+            {!geolocationPosition && (
+                <Button type="position" action={getPosition}>
+                    {isLoadingPosition ? 'loading...' : 'Use Your Position'}
+                </Button>
+            )}
             <MapContainer center={mapPosition} zoom={6} scrollWheelZoom className={styles.map}>
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

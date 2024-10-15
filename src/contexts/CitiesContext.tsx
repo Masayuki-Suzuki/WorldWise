@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { City as CityType } from '../types/apps'
 import { sleep } from '../libs/utilities'
-import { Nullable, OnlyChildren, VoidFunction } from '../types/utilities'
+import { Nullable, OnlyChildren, PromiseVoidFunction, VoidFunction, VoidPromise } from '../types/utilities'
 
 const CitiesContext = createContext({})
 
@@ -11,9 +11,10 @@ type CitiesContextType = {
     setCities: (cities: CityType[]) => void
     isLoading: boolean
     setIsLoading: (isLoading: boolean) => void
-    fetchCities: () => Promise<void>
-    getCityById: (id: number) => CityType | undefined | null
+    fetchCities: PromiseVoidFunction
+    getCityById: (id: string) => CityType | undefined | null
     clearCurrentCity: VoidFunction
+    createCity: (newCity: CityType) => VoidPromise
 }
 
 const CitiesProvider = ({ children }: OnlyChildren) => {
@@ -44,7 +45,7 @@ const CitiesProvider = ({ children }: OnlyChildren) => {
         }
     }
 
-    const getCityById = async (id: number) => {
+    const getCityById = async (id: string) => {
         try {
             setIsLoading(true)
             const res = await fetch(`${process.env.API_URL}cities/${id}`)
@@ -60,6 +61,33 @@ const CitiesProvider = ({ children }: OnlyChildren) => {
                 console.error('Error fetching city:', error)
             }
             return null
+        } finally {
+            await sleep(1000)
+            setIsLoading(false)
+        }
+    }
+
+    const createCity = async (newCity: CityType) => {
+        try {
+            setIsLoading(true)
+            const res = await fetch(`${process.env.API_URL}cities`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newCity)
+            })
+            if (!res.ok) {
+                throw new Error(`Error creating city: ${res.status}`)
+            }
+            const data = (await res.json()) as CityType
+            setCities(prevCities => [...prevCities, data])
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error('Error creating city:', error.message)
+            } else {
+                console.error('Error creating city:', error)
+            }
         } finally {
             await sleep(1000)
             setIsLoading(false)
@@ -82,7 +110,8 @@ const CitiesProvider = ({ children }: OnlyChildren) => {
         fetchCities,
         getCityById,
         currentCity,
-        clearCurrentCity
+        clearCurrentCity,
+        createCity
     }
 
     return <CitiesContext.Provider value={value}>{children}</CitiesContext.Provider>

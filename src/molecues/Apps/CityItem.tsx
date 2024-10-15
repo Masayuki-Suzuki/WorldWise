@@ -19,7 +19,7 @@ const CityItem = ({ city }: CityItemPropsType) => {
             <Link className={className.trim()} to={URL}>
                 <span className={styles.emoji}>{emoji}</span>
                 <h3 className={styles.name}>{cityName}</h3>
-                <time className={styles.date}>({format(date, 'PPP')})</time>
+                <time className={styles.date}>({!!date && format(date, 'PPP')})</time>
                 <button className={styles.deleteBtn}>&times;</button>
             </Link>
         </li>

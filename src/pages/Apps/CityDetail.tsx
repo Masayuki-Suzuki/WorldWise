@@ -14,7 +14,9 @@ const CityDetail = () => {
     const { id } = useParams()
 
     useEffect(() => {
-        getCityById(Number(id))
+        if (id) {
+            getCityById(id)
+        }
 
         return clearCurrentCity()
     }, [id])
@@ -34,7 +36,7 @@ const CityDetail = () => {
 
                     <div className={styles.row}>
                         <h6>You went to {currentCity.cityName} on</h6>
-                        <p>{format(currentCity.date, 'PPP')}</p>
+                        <p>{!!currentCity.date && format(currentCity.date, 'PPP')}</p>
                     </div>
 
                     {currentCity.notes && (
