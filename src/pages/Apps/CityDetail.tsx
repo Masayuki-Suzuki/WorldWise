@@ -10,15 +10,13 @@ import Message from '../../molecues/Apps/Message'
 import BackButton from '../../atoms/BackButton'
 
 const CityDetail = () => {
-    const { getCityById, isLoading, currentCity, clearCurrentCity } = useCities()
+    const { getCityById, isLoading, currentCity } = useCities()
     const { id } = useParams()
 
     useEffect(() => {
         if (id) {
-            getCityById(id)
+            void getCityById(id)
         }
-
-        return clearCurrentCity()
     }, [id])
 
     return (

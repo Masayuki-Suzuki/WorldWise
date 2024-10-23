@@ -7,6 +7,7 @@ export type NullableNumber = Nullable<number>
 export type VoidFunction = () => void
 export type VoidPromise = Promise<void>
 export type PromiseVoidFunction = () => VoidPromise
+export type PromiseVoidFunctionHasOptions<T> = (options: T) => VoidPromise
 export type DateString = string | Date | null | undefined
 
 // React Element

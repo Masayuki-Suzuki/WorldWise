@@ -13,7 +13,6 @@ const useGeolocation = (defaultPosition: Nullable<Position> = null) => {
         setIsLoading(true)
         navigator.geolocation.getCurrentPosition(
             pos => {
-                console.log('Successful geolocation')
                 setPosition({
                     lat: pos.coords.latitude,
                     lng: pos.coords.longitude
