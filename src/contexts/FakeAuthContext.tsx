@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer } from 'react'
+import { createContext, useContext, useEffect, useReducer } from 'react'
 import { Nullable, OnlyChildren } from '../types/utilities'
 import { AuthAction, AuthContext, AuthState, User } from '../types/auth'
 import { sleep } from '../libs/utilities'
@@ -60,10 +60,14 @@ const FakeAuthProvider = ({ children }: OnlyChildren) => {
         dispatch({ type: 'LOADING' })
         await sleep(1000)
         dispatch({ type: 'LOGIN', payload: { email, password } })
+        sessionStorage.setItem('authenticated', 'true')
+        sessionStorage.setItem('user', JSON.stringify(FAKE_USERS))
     }
 
     const logoutHandler = () => {
         dispatch({ type: 'LOGOUT' })
+        sessionStorage.removeItem('authenticated')
+        sessionStorage.removeItem('user')
     }
 
     const value = {
@@ -74,6 +78,15 @@ const FakeAuthProvider = ({ children }: OnlyChildren) => {
         isLoading,
         authError
     }
+
+    useEffect(() => {
+        const prevAuth = sessionStorage.getItem('authenticated')
+
+        if (prevAuth === 'true') {
+            const prevUser = JSON.parse(sessionStorage.getItem('user')!)
+            dispatch({ type: 'LOGIN', payload: prevUser })
+        }
+    }, [])
 
     return <FakeAuthContext.Provider value={value}>{children}</FakeAuthContext.Provider>
 }

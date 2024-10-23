@@ -1,4 +1,4 @@
-import { SyntheticEvent, useEffect, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import FormInput from '../../molecues/Forms/FormInput'
 import styles from './LoginForm.module.sass'
@@ -8,13 +8,13 @@ import { Nullable } from '../../types/utilities'
 import Spinner from '../../atoms/Spinner'
 
 const LoginForm = () => {
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const [email, setEmail] = useState('john.doe@example.com')
+    const [password, setPassword] = useState('johndoe123')
     const [errorMessage, setErrorMessage] = useState<Nullable<string>>(null)
     const navigate = useNavigate()
     const { loginHandler, isAuthenticated, authError, isLoading } = useAuth()
 
-    const handleButtonClick = (e: SyntheticEvent<HTMLButtonElement>) => {
+    const handleButtonClick = (e: FormEvent) => {
         e.preventDefault()
         e.stopPropagation()
 
@@ -38,7 +38,7 @@ const LoginForm = () => {
     }, [isAuthenticated, authError])
 
     return (
-        <form className={styles.loginForm}>
+        <form className={styles.loginForm} onSubmit={handleButtonClick}>
             <h2>Login</h2>
             {errorMessage && <p className={styles.error}>{errorMessage}</p>}
             <FormInput
@@ -60,15 +60,7 @@ const LoginForm = () => {
                 hasPasswordToggle
                 required
             />
-            <div>
-                {isLoading ? (
-                    <Spinner size="small" />
-                ) : (
-                    <Button action={handleButtonClick} type="primary">
-                        Login
-                    </Button>
-                )}
-            </div>
+            <div>{isLoading ? <Spinner size="small" /> : <Button type="primary">Login</Button>}</div>
         </form>
     )
 }
