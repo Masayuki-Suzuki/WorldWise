@@ -1,4 +1,4 @@
-import { createContext, Dispatch, useContext, useEffect, useReducer } from 'react'
+import { createContext, Dispatch, useCallback, useContext, useEffect, useReducer } from 'react'
 import { City as CityType } from '../types/apps'
 import { sleep } from '../libs/utilities'
 import {
@@ -152,8 +152,16 @@ const CitiesProvider = ({ children }: OnlyChildren) => {
         dispatch({ type: 'loading' })
 
         try {
-            const res = await fetch(`${process.env.API_URL}cities`)
+            const res = await fetch(`${process.env.API_URL}api/cities`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': 'http://localhost:3000'
+                },
+                body: JSON.stringify({ token: '123' })
+            })
             const data = await res.json()
+            console.log(data)
             await sleep(1000)
             if (data) {
                 dispatch({ type: 'cities/loaded', payload: data })
@@ -166,27 +174,30 @@ const CitiesProvider = ({ children }: OnlyChildren) => {
         }
     }
 
-    const getCityById = async (id: string) => {
-        if (currentCity && currentCity.id === id) return
+    const getCityById = useCallback(
+        async (id: string) => {
+            if (currentCity && currentCity.id === id) return
 
-        try {
-            dispatch({ type: 'loading' })
-            const res = await fetch(`${process.env.API_URL}cities/${id}`)
-            if (!res.ok) {
-                throw new Error(`Error fetching city: ${res.status}`)
+            try {
+                dispatch({ type: 'loading' })
+                const res = await fetch(`${process.env.API_URL}cities/${id}`)
+                if (!res.ok) {
+                    throw new Error(`Error fetching city: ${res.status}`)
+                }
+                const data = (await res.json()) as Nullable<CityType>
+                await sleep(1000)
+                if (data) {
+                    dispatch({ type: 'currentCity/loaded', payload: data })
+                } else {
+                    dispatch({ type: 'currentCity/loaded' })
+                    throw new Error('No city found')
+                }
+            } catch (error) {
+                citiesContextErrorHandler(error, dispatch)
             }
-            const data = (await res.json()) as Nullable<CityType>
-            await sleep(1000)
-            if (data) {
-                dispatch({ type: 'currentCity/loaded', payload: data })
-            } else {
-                dispatch({ type: 'currentCity/loaded' })
-                throw new Error('No city found')
-            }
-        } catch (error) {
-            citiesContextErrorHandler(error, dispatch)
-        }
-    }
+        },
+        [currentCity]
+    )
 
     const createCity = async (newCity: CityType) => {
         try {
@@ -234,7 +245,7 @@ const CitiesProvider = ({ children }: OnlyChildren) => {
     }
 
     useEffect(() => {
-        void fetchCities()
+        // void fetchCities()
     }, [])
 
     const value: CitiesContextType = {

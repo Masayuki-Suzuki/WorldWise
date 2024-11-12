@@ -8,3 +8,15 @@ export function convertToEmoji(countryCode: string) {
 
     return String.fromCodePoint(...codePoints)
 }
+
+export function getAvatarURL(name: string) {
+    let avatarURL = 'https://i.pravatar.cc/100?u='
+
+    if (name && name.length) {
+        avatarURL += name.replace(' ', '')
+    } else {
+        avatarURL += 'johndoe'
+    }
+
+    return avatarURL
+}

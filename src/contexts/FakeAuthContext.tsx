@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useReducer } from 'react'
 import { Nullable, OnlyChildren } from '../types/utilities'
 import { AuthAction, AuthContext, AuthState, User } from '../types/auth'
 import { sleep } from '../libs/utilities'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '../libs/firebase'
 
 const FakeAuthContext = createContext<Nullable<AuthContext>>(null)
 

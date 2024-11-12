@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import FormInput from '../../molecues/Forms/FormInput'
 import styles from './LoginForm.module.sass'
 import Button from '../../atoms/Button'
-import { useAuth } from '../../contexts/FakeAuthContext'
+import { useAuth } from '../../contexts/FireBaseAuthProvider'
 import { Nullable } from '../../types/utilities'
 import Spinner from '../../atoms/Spinner'
 
 const LoginForm = () => {
-    const [email, setEmail] = useState('john.doe@example.com')
-    const [password, setPassword] = useState('johndoe123')
+    const [email, setEmail] = useState('test1@example.com')
+    const [password, setPassword] = useState('test123')
     const [errorMessage, setErrorMessage] = useState<Nullable<string>>(null)
     const navigate = useNavigate()
     const { loginHandler, isAuthenticated, authError, isLoading } = useAuth()
@@ -35,7 +35,7 @@ const LoginForm = () => {
                 setErrorMessage('Email or password is incorrect. Please try again.')
             }
         }
-    }, [isAuthenticated, authError])
+    }, [isAuthenticated, authError, navigate])
 
     return (
         <form className={styles.loginForm} onSubmit={handleButtonClick}>

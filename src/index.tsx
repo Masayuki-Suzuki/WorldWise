@@ -3,14 +3,14 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { CitiesProvider } from './contexts/CitiesContext'
-import { FakeAuthProvider } from './contexts/FakeAuthContext'
+import { FirebaseAuthProvider } from './contexts/FireBaseAuthProvider'
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <CitiesProvider>
-            <FakeAuthProvider>
+            <FirebaseAuthProvider>
                 <App />
-            </FakeAuthProvider>
+            </FirebaseAuthProvider>
         </CitiesProvider>
     </StrictMode>
 )

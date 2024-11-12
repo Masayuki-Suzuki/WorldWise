@@ -1,15 +1,22 @@
 import { Nullable } from './utilities'
 
 export type User = {
+    id: string
     name: string
     email: string
-    password: string
     avatar: string
+    token: string
 }
 
 export type AuthUser = {
     email: string
     password: string
+}
+
+export type RespondedUser = {
+    uid: string
+    email: string
+    displayName: string
 }
 
 export type AuthState = {
@@ -19,9 +26,14 @@ export type AuthState = {
     isLoading: boolean
 }
 
+export type FirebaseAuthResponse = {
+    user: Nullable<User>
+    error: Nullable<string | Error>
+}
+
 export type AuthAction = {
     type: string
-    payload?: AuthUser | boolean
+    payload?: User | boolean | string
 }
 
 export type AuthContext = {

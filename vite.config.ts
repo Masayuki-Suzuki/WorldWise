@@ -16,8 +16,14 @@ export default defineConfig(({ mode }) => {
             open: true
         },
         define: {
-            'process.env.API_URL': JSON.stringify(env.API_URL), // Replace with your API URL
-            'process.env.GEO_API': JSON.stringify(env.GEO_API) // Replace with your Geocoding API URL
+            'process.env.API_URL': JSON.stringify(env.API_URL),
+            'process.env.GEO_API': JSON.stringify(env.GEO_API),
+            'process.env.API_KEY': JSON.stringify(env.API_KEY),
+            'process.env.AUTH_DOMAIN': JSON.stringify(env.AUTH_DOMAIN),
+            'process.env.PROJECT_ID': JSON.stringify(env.PROJECT_ID),
+            'process.env.STORAGE_BUCKET': JSON.stringify(env.STORAGE_BUCKET),
+            'process.env.MESSAGING_SENDER_ID': JSON.stringify(env.MESSAGING_SENDER_ID),
+            'process.env.APP_ID': JSON.stringify(env.APP_ID)
         },
         css: {
             preprocessorOptions: {

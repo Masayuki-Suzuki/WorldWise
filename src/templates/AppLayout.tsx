@@ -2,7 +2,7 @@ import styles from './AppLayout.module.sass'
 import Sidebar from '../organisms/App/Sidebar'
 import Map from '../organisms/App/Map'
 import User from '../molecues/Apps/User'
-import { useAuth } from '../contexts/FakeAuthContext'
+import { useAuth } from '../contexts/FireBaseAuthProvider'
 import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 

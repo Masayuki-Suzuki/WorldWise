@@ -1,5 +1,5 @@
 import styles from './User.module.sass'
-import { useAuth } from '../../contexts/FakeAuthContext'
+import { useAuth } from '../../contexts/FireBaseAuthProvider'
 
 const User = () => {
     const { user, logoutHandler } = useAuth()

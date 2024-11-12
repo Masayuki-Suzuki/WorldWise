@@ -17,7 +17,7 @@ const CityDetail = () => {
         if (id) {
             void getCityById(id)
         }
-    }, [id])
+    }, [id, getCityById])
 
     return (
         <div className={styles.city}>
