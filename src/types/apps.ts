@@ -1,4 +1,4 @@
-import { DateString } from './utilities'
+// import { DateString } from './utilities'
 
 export type Position = {
     lat: number
@@ -10,7 +10,7 @@ export type City = {
     cityName: string
     country: string
     emoji: string
-    date: DateString
+    date: Date
     notes: string
     position: Position
 }
@@ -49,4 +49,8 @@ export type DecodedLocationData = {
     postalcode: string
     principalSubdivision: string
     principalSubdivisionCode: string
+}
+
+export type PostCity = Omit<City, 'id'> & {
+    userId: string
 }

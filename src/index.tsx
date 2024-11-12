@@ -7,10 +7,10 @@ import { FirebaseAuthProvider } from './contexts/FireBaseAuthProvider'
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
-        <CitiesProvider>
-            <FirebaseAuthProvider>
+        <FirebaseAuthProvider>
+            <CitiesProvider>
                 <App />
-            </FirebaseAuthProvider>
-        </CitiesProvider>
+            </CitiesProvider>
+        </FirebaseAuthProvider>
     </StrictMode>
 )

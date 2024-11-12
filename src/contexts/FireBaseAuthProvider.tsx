@@ -76,7 +76,7 @@ const firebaseAuth = async ({
                 if (error instanceof Error) {
                     return {
                         user: null,
-                        error: error
+                        error: error.message
                     }
                 } else {
                     return {
@@ -90,7 +90,7 @@ const firebaseAuth = async ({
         if (error instanceof Error) {
             return {
                 user: null,
-                error: error
+                error: error.message
             }
         } else {
             return {
@@ -162,7 +162,6 @@ const FirebaseAuthProvider = ({ children }: OnlyChildren) => {
     }
 
     const validateToken = async (token: string) => {
-        console.log('Validating token...')
         if (token) {
             try {
                 const res = await fetch(`${process.env.API_URL}api/auth/login`, {
@@ -211,6 +210,7 @@ const FirebaseAuthProvider = ({ children }: OnlyChildren) => {
     }
 
     useEffect(() => {
+        //For refreshing the page and re-authenticating the user
         const prevAuth = sessionStorage.getItem('authenticated')
         const prevToken = sessionStorage.getItem('token')
 

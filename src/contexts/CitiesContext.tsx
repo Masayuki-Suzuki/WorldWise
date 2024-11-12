@@ -1,7 +1,8 @@
 import { createContext, Dispatch, useCallback, useContext, useEffect, useReducer } from 'react'
-import { City as CityType } from '../types/apps'
+import { City as CityType, PostCity } from '../types/apps'
 import { sleep } from '../libs/utilities'
 import {
+    APIResponseJSON,
     Nullable,
     OnlyChildren,
     PromiseVoidFunction,
@@ -9,6 +10,7 @@ import {
     VoidFunction,
     VoidPromise
 } from '../types/utilities'
+import { useAuth } from './FireBaseAuthProvider'
 
 const CitiesContext = createContext({})
 
@@ -19,7 +21,7 @@ type CitiesContextType = {
     fetchCities: PromiseVoidFunction
     getCityById: PromiseVoidFunctionHasOptions<string>
     clearCurrentCity: VoidFunction
-    createCity: (newCity: CityType) => VoidPromise
+    createCity: (newCity: PostCity) => VoidPromise
     deleteCity: PromiseVoidFunctionHasOptions<string>
     error: Nullable<string>
 }
@@ -147,77 +149,99 @@ const citiesContextErrorHandler = (error: unknown, dispatch: Dispatch<CitiesRedu
 
 const CitiesProvider = ({ children }: OnlyChildren) => {
     const [{ cities, isLoading, currentCity, error }, dispatch] = useReducer(citiesReducer, initialState)
+    const { user } = useAuth()
 
-    const fetchCities = async () => {
+    const fetchCities = useCallback(async () => {
         dispatch({ type: 'loading' })
+        if (user && user.token) {
+            try {
+                const res = await fetch(`${process.env.API_URL}api/cities`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': 'http://localhost:3000',
+                        Authorization: `Bearer ${user.token}`,
+                        UUID: user.id
+                    }
+                })
 
-        try {
-            const res = await fetch(`${process.env.API_URL}api/cities`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': 'http://localhost:3000'
-                },
-                body: JSON.stringify({ token: '123' })
-            })
-            const data = await res.json()
-            console.log(data)
-            await sleep(1000)
-            if (data) {
-                dispatch({ type: 'cities/loaded', payload: data })
-            } else {
-                dispatch({ type: 'cities/loaded' })
-                throw new Error('No cities found')
+                if (!res.ok) {
+                    const msg = await res.json()
+                    throw new Error(`Error fetching cities: ${msg.message}`)
+                } else {
+                    const data = await res.json()
+
+                    if (data && 'cities' in data) {
+                        dispatch({ type: 'cities/loaded', payload: data.cities })
+                    } else {
+                        dispatch({ type: 'cities/loaded' })
+                        throw new Error('No cities found')
+                    }
+                }
+            } catch (error) {
+                citiesContextErrorHandler(error, dispatch)
             }
-        } catch (error) {
-            citiesContextErrorHandler(error, dispatch)
         }
-    }
+    }, [user])
 
     const getCityById = useCallback(
         async (id: string) => {
             if (currentCity && currentCity.id === id) return
 
-            try {
-                dispatch({ type: 'loading' })
-                const res = await fetch(`${process.env.API_URL}cities/${id}`)
-                if (!res.ok) {
-                    throw new Error(`Error fetching city: ${res.status}`)
+            if (user && user.token) {
+                try {
+                    dispatch({ type: 'loading' })
+                    const res = await fetch(`${process.env.API_URL}api/cities/${id}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': 'http://localhost:3000',
+                            Authorization: `Bearer ${user.token}`
+                        }
+                    })
+                    if (!res.ok) {
+                        throw new Error(`Error fetching city: ${res.status}`)
+                    }
+                    const data = (await res.json()) as { city: Nullable<CityType> }
+                    if (data && 'city' in data && data.city) {
+                        dispatch({ type: 'currentCity/loaded', payload: data.city })
+                    } else {
+                        dispatch({ type: 'currentCity/loaded' })
+                        throw new Error('No city found')
+                    }
+                } catch (error) {
+                    citiesContextErrorHandler(error, dispatch)
                 }
-                const data = (await res.json()) as Nullable<CityType>
-                await sleep(1000)
-                if (data) {
-                    dispatch({ type: 'currentCity/loaded', payload: data })
-                } else {
-                    dispatch({ type: 'currentCity/loaded' })
-                    throw new Error('No city found')
-                }
-            } catch (error) {
-                citiesContextErrorHandler(error, dispatch)
+            } else {
+                citiesContextErrorHandler('User not found', dispatch)
             }
         },
-        [currentCity]
+        [currentCity, user]
     )
 
-    const createCity = async (newCity: CityType) => {
+    const createCity = async (newCity: PostCity) => {
         try {
             dispatch({ type: 'loading' })
-            const res = await fetch(`${process.env.API_URL}cities`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(newCity)
-            })
-            if (!res.ok) {
-                throw new Error(`Error creating city: ${res.status}`)
-            }
-            const data = (await res.json()) as CityType
-            await sleep(1000)
-            if (data) {
-                dispatch({ type: 'city/created', payload: data })
+            if (!user || !user.token) {
+                citiesContextErrorHandler('User not found', dispatch)
             } else {
-                citiesContextErrorHandler('Failed to create new city. Please try again later.', dispatch)
+                const res = await fetch(`${process.env.API_URL}api/city`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ city: newCity, token: user.token })
+                })
+                if (!res.ok) {
+                    throw new Error(`Error creating city: ${res.status}`)
+                }
+
+                const data = (await res.json()) as APIResponseJSON<{ city: CityType }>
+                if (data && 'city' in data && data.city) {
+                    dispatch({ type: 'city/created', payload: data.city })
+                } else {
+                    citiesContextErrorHandler('Failed to create new city. Please try again later.', dispatch)
+                }
             }
         } catch (error) {
             citiesContextErrorHandler(error, dispatch)
@@ -245,8 +269,8 @@ const CitiesProvider = ({ children }: OnlyChildren) => {
     }
 
     useEffect(() => {
-        // void fetchCities()
-    }, [])
+        void fetchCities()
+    }, [fetchCities])
 
     const value: CitiesContextType = {
         cities,

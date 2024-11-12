@@ -26,6 +26,7 @@ const CityItem = ({ city }: CityItemPropsType) => {
                 <span className={styles.emoji}>{emoji}</span>
                 <h3 className={styles.name}>{cityName}</h3>
                 <time className={styles.date}>({!!date && format(date, 'PPP')})</time>
+                {/*<time className={styles.date}>({date})</time>*/}
                 <button className={styles.deleteBtn} onClick={handleDelete}>
                     &times;
                 </button>

@@ -1,9 +1,10 @@
 import { SyntheticEvent, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import styles from './AppForm.module.sass'
 import BackButton from '../../atoms/BackButton'
 import Button from '../../atoms/Button'
 import useURLPosition from '../../hooks/useURLPosition'
-import { City, DecodedLocationData } from '../../types/apps'
+import { DecodedLocationData, PostCity } from '../../types/apps'
 import { convertToEmoji } from '../../libs/utilities'
 import Message from '../../molecues/Apps/Message'
 import Spinner from '../../atoms/Spinner'
@@ -11,7 +12,7 @@ import DatePicker from 'react-datepicker'
 
 import 'react-datepicker/dist/react-datepicker.css'
 import { useCities } from '../../contexts/CitiesContext'
-import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../contexts/FireBaseAuthProvider'
 
 const AppForm = () => {
     const navigate = useNavigate()
@@ -24,6 +25,7 @@ const AppForm = () => {
     const [isLoadingGeocoding, setIsLoadingGeocoding] = useState(false)
     const [geocodingError, setGeocodingError] = useState<string | null>(null)
     const { createCity, isLoading } = useCities()
+    const { user } = useAuth()
 
     const [mapLat, mapLng] = useURLPosition()
 
@@ -39,6 +41,8 @@ const AppForm = () => {
                     throw new Error(`That doesn't seem to be a city. Click somewhere else 😉`)
                 } else {
                     let cityName = data.city
+
+                    console.log(data)
 
                     if (data.countryName === 'canada') {
                         cityName = data.locality
@@ -67,11 +71,10 @@ const AppForm = () => {
         e.preventDefault()
         e.stopPropagation()
 
-        if (!cityName || !date) {
+        if (!cityName || !date || !user || !user.id) {
             return
         } else {
-            const locationData: City = {
-                id: crypto.randomUUID(),
+            const locationData: PostCity = {
                 cityName,
                 country,
                 emoji,
@@ -80,7 +83,8 @@ const AppForm = () => {
                 position: {
                     lat: Number(mapLat),
                     lng: Number(mapLng)
-                }
+                },
+                userId: user.id
             }
             void createCity(locationData)
             setNotes('')

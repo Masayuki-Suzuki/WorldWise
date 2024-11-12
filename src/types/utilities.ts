@@ -22,3 +22,8 @@ export type NullableOnlyChildren = Nullable<OnlyChildren>
 export type NullableOnlyChildrenAllowStrings = Nullable<OnlyChildrenAllowStrings>
 
 export type OnClickEventWithEvent<T, R = void> = (e: SyntheticEvent<T>) => R
+
+// API Response
+export type APIResponseJSON<T> = {
+    message: string
+} & T
