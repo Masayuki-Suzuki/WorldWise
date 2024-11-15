@@ -1,14 +1,25 @@
-import { createContext, useContext, useEffect, useReducer } from 'react'
+import { createContext, useCallback, useContext, useEffect, useReducer } from 'react'
 import { Nullable, OnlyChildren } from '../types/utilities'
-import { AuthAction, AuthContext, AuthState, FirebaseAuthResponse, RespondedUser, User } from '../types/auth'
-import { signInWithEmailAndPassword } from 'firebase/auth'
+import {
+    AuthAction,
+    AuthContext,
+    AuthState,
+    FirebaseAuthResponse,
+    LoginUser,
+    SignUpUser,
+    TokenValidationResponse,
+    User
+} from '../types/auth'
+import {
+    createUserWithEmailAndPassword,
+    sendEmailVerification,
+    signInWithEmailAndPassword,
+    updateProfile,
+    UserCredential
+} from 'firebase/auth'
 import { auth } from '../libs/firebase'
 import { getAvatarURL } from '../libs/utilities'
-
-type TokenValidationResponse = {
-    message: string
-    user: RespondedUser
-}
+import apiLoginVerification from '../libs/apiLoginVerificator'
 
 const FirebaseAuthContext = createContext<Nullable<AuthContext>>(null)
 
@@ -25,66 +36,61 @@ function isUserType(value: unknown): asserts value is User {
     }
 }
 
-const firebaseAuth = async ({
-    email,
-    password
-}: {
-    email: string
-    password: string
-}): Promise<FirebaseAuthResponse> => {
+const firebaseSignUp = async ({ email, password, firstName, lastName }: SignUpUser): Promise<FirebaseAuthResponse> => {
+    console.log('Starting signup')
+
     try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password)
+        console.log('Creating user')
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password)
         const { user } = userCredential
 
         if (user) {
-            const idToken = await user.getIdToken()
-
-            try {
-                const res = await fetch(`${process.env.API_URL}api/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': 'http://localhost:3000'
-                    },
-                    body: JSON.stringify({ token: idToken })
+            if (auth.currentUser) {
+                console.log('Updating user to add display name')
+                await updateProfile(user, {
+                    displayName: `${firstName} ${lastName}`
                 })
+                console.log('Sending email verification')
+                await sendEmailVerification(auth.currentUser)
 
-                const avatar = getAvatarURL(user.displayName || '')
-
-                const loginUserData: User = {
-                    id: user.uid,
-                    name: user.displayName || '',
-                    email: user.email || '',
-                    token: idToken,
-                    avatar
-                }
-
-                const { message } = (await res.json()) as TokenValidationResponse
-
-                if (res.ok) {
-                    return {
-                        user: loginUserData,
-                        error: null
-                    }
-                } else {
-                    return {
-                        user: null,
-                        error: message
-                    }
-                }
-            } catch (error) {
-                if (error instanceof Error) {
-                    return {
-                        user: null,
-                        error: error.message
-                    }
-                } else {
-                    return {
-                        user: null,
-                        error: 'An unknown error occurred while logging in. Please try again.'
-                    }
+                return await apiLoginVerification(user, false)
+            } else {
+                console.log(`Couldn't get firebase auth.`)
+                return {
+                    user: null,
+                    error: `Couldn't get firebase auth. Please try again.`
                 }
             }
+        } else {
+            console.log('Creating user failed')
+            return {
+                user: null,
+                error: `Couldn't create user. Please try again or contact support.`
+            }
+        }
+    } catch (error) {
+        if (error instanceof Error) {
+            return {
+                user: null,
+                error: error.message
+            }
+        } else {
+            return {
+                user: null,
+                error: 'An unknown error occurred while signing up. Please try again.'
+            }
+        }
+    }
+}
+
+const firebaseLogin = async ({ email, password }: LoginUser): Promise<FirebaseAuthResponse> => {
+    try {
+        const userCredential: UserCredential = await signInWithEmailAndPassword(auth, email, password)
+        const { user } = userCredential
+
+        if (user) {
+            const needEmailVerified = user.email !== 'test1@example.com'
+            return await apiLoginVerification(user, needEmailVerified)
         }
     } catch (error) {
         if (error instanceof Error) {
@@ -124,6 +130,9 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         case 'LOADING':
             return { ...state, isLoading: true }
 
+        case 'COMPLETED':
+            return { ...state, isLoading: false }
+
         default:
             throw new Error('Unhandled action type')
     }
@@ -132,9 +141,15 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 const FirebaseAuthProvider = ({ children }: OnlyChildren) => {
     const [{ user, isAuthenticated, authError, isLoading }, dispatch] = useReducer(authReducer, AuthInitialState)
 
+    const signUpHandler = async ({ email, password, firstName, lastName }: SignUpUser) => {
+        dispatch({ type: 'LOADING' })
+        await firebaseSignUp({ email, password, firstName, lastName })
+        dispatch({ type: 'COMPLETED' })
+    }
+
     const loginHandler = async (email: string, password: string) => {
         dispatch({ type: 'LOADING' })
-        const res = await firebaseAuth({ email, password })
+        const res = await firebaseLogin({ email, password })
 
         if (res.error) {
             let errorMsg = 'Unknown error occurred.'
@@ -155,11 +170,11 @@ const FirebaseAuthProvider = ({ children }: OnlyChildren) => {
         }
     }
 
-    const logoutHandler = () => {
+    const logoutHandler = useCallback(() => {
         dispatch({ type: 'LOGOUT' })
         sessionStorage.removeItem('authenticated')
         sessionStorage.removeItem('token')
-    }
+    }, [])
 
     const validateToken = async (token: string) => {
         if (token) {
@@ -203,6 +218,7 @@ const FirebaseAuthProvider = ({ children }: OnlyChildren) => {
     const value = {
         user,
         isAuthenticated,
+        signUpHandler,
         loginHandler,
         logoutHandler,
         isLoading,

@@ -12,6 +12,7 @@ const Product = lazy(() => import('./pages/Corporate/Product'))
 const Pricing = lazy(() => import('./pages/Corporate/Pricing'))
 const PageNotFound = lazy(() => import('./pages/404'))
 const Login = lazy(() => import('./pages/Corporate/Login'))
+const Signup = lazy(() => import('./pages/Corporate/Signup'))
 const AppLayout = lazy(() => import('./templates/AppLayout'))
 
 const App = () => (
@@ -23,6 +24,7 @@ const App = () => (
                     <Route path="/product" element={<Product />} />
                     <Route path="/pricing" element={<Pricing />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
                     <Route path="/app" element={<AppLayout />}>
                         <Route index element={<Navigate replace to="cities" />} />
                         <Route path="cities" element={<Cities />} />

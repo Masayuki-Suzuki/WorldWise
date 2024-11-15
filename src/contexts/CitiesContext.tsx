@@ -1,6 +1,6 @@
 import { createContext, Dispatch, useCallback, useContext, useEffect, useReducer } from 'react'
 import { City as CityType, PostCity } from '../types/apps'
-import { sleep } from '../libs/utilities'
+
 import {
     APIResponseJSON,
     Nullable,
@@ -47,15 +47,16 @@ const initialState: CitiesStateType = {
     error: null
 }
 
-function isCityArray(value: unknown): asserts value is CityType[] {
+function isCityArray(value: unknown): value is CityType[] {
     if (!Array.isArray(value)) {
-        throw new Error('Not an array of cities.')
+        return false
     } else if (!('cityName' in value[0]) || !('country' in value[0])) {
-        throw new Error('Not an array of cities.')
+        return false
     }
+    return true
 }
 
-function isCityType(value: unknown): asserts value is CityType {
+function isCityType(value: unknown): value is CityType {
     if (
         value === null ||
         value === undefined ||
@@ -63,8 +64,9 @@ function isCityType(value: unknown): asserts value is CityType {
         !('cityName' in value) ||
         !('country' in value)
     ) {
-        throw new Error('Not a city.')
+        return false
     }
+    return true
 }
 
 const citiesReducer = (state: CitiesStateType, action: CitiesReducerAction): CitiesStateType => {
@@ -77,20 +79,36 @@ const citiesReducer = (state: CitiesStateType, action: CitiesReducerAction): Cit
 
         case 'cities/loaded':
             if (action.payload) {
-                isCityArray(action.payload)
-                return { ...state, isLoading: false, cities: action.payload }
+                if (Array.isArray(action.payload)) {
+                    if (action.payload.length === 0) {
+                        return {
+                            ...state,
+                            isLoading: false,
+                            cities: []
+                        }
+                    } else {
+                        if (isCityArray(action.payload)) {
+                            return { ...state, isLoading: false, cities: action.payload }
+                        } else {
+                            return { ...state, isLoading: false }
+                        }
+                    }
+                }
+                throw new Error('Invalid city data found. Please try again.')
             }
-            return { ...state, cities: [] }
+            throw new Error(`Could not load cities. Please try again or contact support.`)
 
         case 'city/created':
             if (action.payload) {
-                isCityType(action.payload)
-                return {
-                    ...state,
-                    isLoading: false,
-                    cities: [...state.cities, action.payload],
-                    currentCity: action.payload
+                if (isCityType(action.payload)) {
+                    return {
+                        ...state,
+                        isLoading: false,
+                        cities: [...state.cities, action.payload],
+                        currentCity: action.payload
+                    }
                 }
+                throw new Error('Invalid city data found. Please try again.')
             }
             throw new Error('No city data found. Please try again.')
 
@@ -106,8 +124,10 @@ const citiesReducer = (state: CitiesStateType, action: CitiesReducerAction): Cit
 
         case 'currentCity/loaded':
             if (action.payload) {
-                isCityType(action.payload)
-                return { ...state, isLoading: false, currentCity: action.payload }
+                if (isCityType(action.payload)) {
+                    return { ...state, isLoading: false, currentCity: action.payload }
+                }
+                throw new Error('Invalid city data found. Please try again.')
             }
             throw new Error('No city data found. Please try again.')
 
@@ -249,18 +269,23 @@ const CitiesProvider = ({ children }: OnlyChildren) => {
     }
 
     const deleteCity = async (id: string) => {
-        try {
-            dispatch({ type: 'loading' })
-            const res = await fetch(`${process.env.API_URL}cities/${id}`, {
-                method: 'DELETE'
-            })
-            await sleep(1000)
-            if (!res.ok) {
-                throw new Error(`Error deleting city: ${res.status}`)
+        if (user && user.token) {
+            try {
+                dispatch({ type: 'loading' })
+                const res = await fetch(`${process.env.API_URL}api/cities/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: `Bearer ${user.token}`
+                    }
+                })
+
+                if (!res.ok) {
+                    throw new Error(`Error deleting city: ${res.status}`)
+                }
+                dispatch({ type: 'city/deleted', payload: id })
+            } catch (error) {
+                citiesContextErrorHandler(error, dispatch)
             }
-            dispatch({ type: 'city/deleted', payload: id })
-        } catch (error) {
-            citiesContextErrorHandler(error, dispatch)
         }
     }
 

@@ -1,4 +1,4 @@
-import { Nullable } from './utilities'
+import { Nullable, VoidPromise } from './utilities'
 
 export type User = {
     id: string
@@ -8,9 +8,16 @@ export type User = {
     token: string
 }
 
-export type AuthUser = {
+export type LoginUser = {
     email: string
     password: string
+}
+
+export type SignUpUser = {
+    email: string
+    password: string
+    firstName: string
+    lastName: string
 }
 
 export type RespondedUser = {
@@ -41,6 +48,12 @@ export type AuthContext = {
     isAuthenticated: boolean
     isLoading: boolean
     authError: Nullable<string | boolean>
-    loginHandler: (email: string, password: string) => void
+    signUpHandler: (userData: SignUpUser) => VoidPromise
+    loginHandler: (email: string, password: string) => VoidPromise
     logoutHandler: () => void
+}
+
+export type TokenValidationResponse = {
+    message: string
+    user: RespondedUser
 }

@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import FormInput from '../../molecues/Forms/FormInput'
 import styles from './LoginForm.module.sass'
 import Button from '../../atoms/Button'
@@ -12,7 +12,7 @@ const LoginForm = () => {
     const [password, setPassword] = useState('test123')
     const [errorMessage, setErrorMessage] = useState<Nullable<string>>(null)
     const navigate = useNavigate()
-    const { loginHandler, isAuthenticated, authError, isLoading } = useAuth()
+    const { loginHandler, isAuthenticated, authError, logoutHandler, isLoading } = useAuth()
 
     const handleButtonClick = (e: FormEvent) => {
         e.preventDefault()
@@ -35,7 +35,13 @@ const LoginForm = () => {
                 setErrorMessage('Email or password is incorrect. Please try again.')
             }
         }
-    }, [isAuthenticated, authError, navigate])
+
+        return () => {
+            if (authError) {
+                logoutHandler()
+            }
+        }
+    }, [isAuthenticated, authError, navigate, logoutHandler])
 
     return (
         <form className={styles.loginForm} onSubmit={handleButtonClick}>
@@ -60,7 +66,12 @@ const LoginForm = () => {
                 hasPasswordToggle
                 required
             />
-            <div>{isLoading ? <Spinner size="small" /> : <Button type="primary">Login</Button>}</div>
+            <div className={styles.loginBtn}>
+                {isLoading ? <Spinner size="small" /> : <Button type="primary">Login</Button>}
+            </div>
+            <p className={styles.signupText}>
+                Don't have an account?&nbsp;&nbsp;<Link to="/signup">Signup Now.</Link>
+            </p>
         </form>
     )
 }
