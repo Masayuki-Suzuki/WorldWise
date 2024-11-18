@@ -23,7 +23,8 @@ export default defineConfig(({ mode }) => {
             'process.env.PROJECT_ID': JSON.stringify(env.PROJECT_ID),
             'process.env.STORAGE_BUCKET': JSON.stringify(env.STORAGE_BUCKET),
             'process.env.MESSAGING_SENDER_ID': JSON.stringify(env.MESSAGING_SENDER_ID),
-            'process.env.APP_ID': JSON.stringify(env.APP_ID)
+            'process.env.APP_ID': JSON.stringify(env.APP_ID),
+            'process.env.ORIGIN_URL': JSON.stringify(env.ORIGIN_URL)
         },
         css: {
             preprocessorOptions: {

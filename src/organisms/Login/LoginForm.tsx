@@ -19,7 +19,7 @@ const LoginForm = () => {
         e.stopPropagation()
 
         if (email && password) {
-            loginHandler(email, password)
+            void loginHandler(email, password)
         } else {
             setErrorMessage('Please fill out all fields.')
         }

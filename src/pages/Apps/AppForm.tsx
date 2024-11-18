@@ -1,4 +1,4 @@
-import { SyntheticEvent, useEffect, useState } from 'react'
+import { SyntheticEvent, useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './AppForm.module.sass'
 import BackButton from '../../atoms/BackButton'
@@ -29,7 +29,7 @@ const AppForm = () => {
 
     const [mapLat, mapLng] = useURLPosition()
 
-    const decodeGeolocation = async () => {
+    const decodeGeolocation = useCallback(async () => {
         try {
             setIsLoadingGeocoding(true)
             const res = await fetch(`${process.env.GEO_API}?latitude=${mapLat}&longitude=${mapLng}`)
@@ -41,8 +41,6 @@ const AppForm = () => {
                     throw new Error(`That doesn't seem to be a city. Click somewhere else 😉`)
                 } else {
                     let cityName = data.city
-
-                    console.log(data)
 
                     if (data.countryName === 'canada') {
                         cityName = data.locality
@@ -65,7 +63,7 @@ const AppForm = () => {
         } finally {
             setIsLoadingGeocoding(false)
         }
-    }
+    }, [mapLng, mapLat])
 
     const handleSubmit = (e: SyntheticEvent<HTMLButtonElement>) => {
         e.preventDefault()
@@ -96,7 +94,7 @@ const AppForm = () => {
 
     useEffect(() => {
         void decodeGeolocation()
-    }, [mapLat, mapLng])
+    }, [mapLat, mapLng, decodeGeolocation])
 
     if (isLoadingGeocoding) {
         return <Spinner />

@@ -183,28 +183,32 @@ const FirebaseAuthProvider = ({ children }: OnlyChildren) => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': 'http://localhost:3000'
+                        'Access-Control-Allow-Origin': process.env.ORIGIN_URL || 'http://localhost:3000'
                     },
                     body: JSON.stringify({ token })
                 })
 
                 const { user } = (await res.json()) as TokenValidationResponse
-                const avatar = getAvatarURL(user.displayName)
-                const validatedUser: User = {
-                    id: user.uid,
-                    name: user.displayName,
-                    email: user.email,
-                    avatar,
-                    token
-                }
 
                 if (res.ok && user) {
+                    const avatar = getAvatarURL(user.displayName)
+                    const validatedUser: User = {
+                        id: user.uid,
+                        name: user.displayName,
+                        email: user.email,
+                        avatar,
+                        token
+                    }
                     dispatch({ type: 'LOGIN', payload: validatedUser })
                 } else {
                     dispatch({ type: 'LOGIN_ERROR', payload: 'Cannot find user.' })
                 }
             } catch (error) {
                 if (error instanceof Error) {
+                    dispatch({ type: 'LOGIN_ERROR', payload: error.message })
+                    //eslint-disable-next-line
+                    // @ts-ignore
+                } else if ('message' in error && typeof error.message === 'string') {
                     dispatch({ type: 'LOGIN_ERROR', payload: error.message })
                 } else {
                     dispatch({ type: 'LOGIN_ERROR', payload: 'Cannot find user.' })
