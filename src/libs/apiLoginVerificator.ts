@@ -10,15 +10,20 @@ const apiLoginVerification = async (user: FirebaseUser, needEmailVerified: boole
         }
     }
 
+    console.log('Get ID token')
     const idToken = await user.getIdToken()
 
     try {
+        if (!process.env.ORIGIN_URL) {
+            throw new Error('No origin URL found in environment variables.')
+        }
+
         const res = await fetch(`${process.env.API_URL}api/auth/login`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': 'http://localhost:3000'
+                'Content-Type': 'application/json'
             },
+            mode: 'cors',
             body: JSON.stringify({ token: idToken })
         })
 

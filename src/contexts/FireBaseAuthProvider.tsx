@@ -37,32 +37,27 @@ function isUserType(value: unknown): asserts value is User {
 }
 
 const firebaseSignUp = async ({ email, password, firstName, lastName }: SignUpUser): Promise<FirebaseAuthResponse> => {
-    console.log('Starting signup')
-
     try {
-        console.log('Creating user')
         const userCredential = await createUserWithEmailAndPassword(auth, email, password)
         const { user } = userCredential
 
         if (user) {
             if (auth.currentUser) {
-                console.log('Updating user to add display name')
                 await updateProfile(user, {
                     displayName: `${firstName} ${lastName}`
                 })
-                console.log('Sending email verification')
                 await sendEmailVerification(auth.currentUser)
 
                 return await apiLoginVerification(user, false)
             } else {
-                console.log(`Couldn't get firebase auth.`)
+                console.error(`Couldn't get firebase auth.`)
                 return {
                     user: null,
                     error: `Couldn't get firebase auth. Please try again.`
                 }
             }
         } else {
-            console.log('Creating user failed')
+            console.error('Creating user failed')
             return {
                 user: null,
                 error: `Couldn't create user. Please try again or contact support.`
@@ -179,11 +174,15 @@ const FirebaseAuthProvider = ({ children }: OnlyChildren) => {
     const validateToken = async (token: string) => {
         if (token) {
             try {
+                if (!process.env.ORIGIN_URL) {
+                    throw new Error('Cannot find origin.')
+                }
+
                 const res = await fetch(`${process.env.API_URL}api/auth/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': process.env.ORIGIN_URL || 'http://localhost:3000'
+                        'Access-Control-Allow-Origin': process.env.ORIGIN_URL
                     },
                     body: JSON.stringify({ token })
                 })

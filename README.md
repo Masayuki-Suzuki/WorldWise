@@ -1,3 +1,31 @@
+# World Wise
+Keep track of your adventures.  
+Demo: [World Wise](https://world-wise.masa.works/)
+
+Backend Repo: https://github.com/Masayuki-Suzuki/WorldWise-Backend
+
+## Tech Stack
+#### Frontend
+- React
+- TypeScript
+- Vite
+
+#### Backend
+- Golang
+- Fiber (Framework)
+- MongoDB
+- Docker
+- Docker Compose
+
+#### Auth
+- Firebase Authentication
+
+#### Infrastructure
+- Frontend: Netlify
+- Backend: GCP(GCE)
+
+---
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
