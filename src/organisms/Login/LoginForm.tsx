@@ -8,8 +8,8 @@ import { Nullable } from '../../types/utilities'
 import Spinner from '../../atoms/Spinner'
 
 const LoginForm = () => {
-    const [email, setEmail] = useState('test1@example.com')
-    const [password, setPassword] = useState('test123')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
     const [errorMessage, setErrorMessage] = useState<Nullable<string>>(null)
     const navigate = useNavigate()
     const { loginHandler, isAuthenticated, authError, logoutHandler, isLoading } = useAuth()
@@ -71,6 +71,12 @@ const LoginForm = () => {
             </div>
             <p className={styles.signupText}>
                 Don't have an account?&nbsp;&nbsp;<Link to="/signup">Signup Now.</Link>
+            </p>
+            <p className={styles.testCredentials}>
+                <b>You can also use the following credentials to test the app.</b>
+                <br />
+                Email: test1@example.com <br />
+                Password: test123
             </p>
         </form>
     )

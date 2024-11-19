@@ -14,6 +14,7 @@ dist-ssr
 .yarn
 data
 .env
+dist
 
 # Editor directories and files
 .vscode/*

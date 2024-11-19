@@ -1,1 +1,0 @@
-import{j as o,L as s}from"./index-CBWhTqq4.js";const l="_logo_1lz4v_1",t={logo:l},i=()=>o.jsx("div",{children:o.jsx(s,{to:"/",children:o.jsx("img",{className:t.logo,src:"/images/logo.png",alt:"WorldWise"})})});export{i as L};
